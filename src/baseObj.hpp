@@ -13,21 +13,11 @@ namespace ROOT_SPACE
     class baseObj
     {
     public:
-        //引用加一
-        void retain( void )
-        {
-            mQuoteMutex.lock();
-            mQuote++;
-            mQuoteMutex.unlock();
-        }
+    
+        virtual void retain( void );
         
-        //引用减一
-        void release( void )
-        {
-            mQuoteMutex.lock();
-            mQuote--;
-            mQuoteMutex.unlock();
-        }
+        virtual void release( void );
+
     protected:
         baseObj( void )
         {
@@ -54,7 +44,6 @@ namespace ROOT_SPACE
     private:
         //对象引用数量
         int mQuote;
-        static std::mutex mQuoteMutex;
     };
 }
 
