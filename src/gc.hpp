@@ -3,6 +3,7 @@
 #define __GC_H__
 
 #include "baseObj.hpp"
+#include "object.hpp"
 #include "../../Tools/include/threadExt.hpp"
 
 #include <map>
@@ -15,7 +16,7 @@ namespace ROOT_SPACE
     {
     public:
 
-        gc & instance()
+        static gc & instance()
         {
             unsigned int tThreadId = ws::PthreadSelf();
             if( sInstances.find( tThreadId ) == sInstances.end() )
@@ -29,9 +30,9 @@ namespace ROOT_SPACE
         void makeCache(void)
         {
             //清空三级缓存
-            for( auto cache & : mCaches )
+            for( auto & cache : mCaches )
             {
-                for( auto cacheByClass & : cache )
+                for( auto & cacheByClass : cache )
                 {
                     delete cacheByClass.second;
                 }
@@ -39,7 +40,7 @@ namespace ROOT_SPACE
             }
             //缓存对象排序
             mObjCacheList.sort( []( const baseObj * first, const baseObj * second )->bool{
-                return first->mFrequency < second->mFrequency;
+                return first->frequency() < second->frequency();
             } );
 
             //将缓存对象分配到三级缓存
@@ -61,14 +62,20 @@ namespace ROOT_SPACE
                 }
 
                 //删除超出的缓存对象
-                if( --item->mFrequency <= -300 || !tCacheList )
+                if( (*item)->frequencyMinusOne() <= -300 || !tCacheList )
                 {
                     delete *item;
                     mObjCacheList.erase( item-- );
                     continue;
                 }
 
-                tCacheList->push_back( item )
+				std::string tObjTypeName = typeid(**item).name ();
+				if ( tCacheList->find ( tObjTypeName ) == tCacheList->end () )
+				{
+					tCacheList->operator[]( tObjTypeName ) = new std::list< std::list< baseObj* >::iterator > ();
+				}
+
+				tCacheList->operator[]( tObjTypeName )->push_front ( item );
             }
         }
         
@@ -81,12 +88,12 @@ namespace ROOT_SPACE
             }
             std::list< std::list< baseObj* >::iterator > & tCache = *mCaches[0][ tClassName ];
             
-            tCache.push_back( insertToCacheList( p_obj ) );
+            tCache.push_front( insertToCacheList( p_obj ) );
         }
 
         baseObj * getObj( const std::string & p_classId )
         {
-            for( auto cache & : mCaches )
+            for( auto & cache : mCaches )
             {
                 if( cache.find( p_classId ) ==  cache.end() ) continue;
                 std::list< std::list< baseObj* >::iterator > * tObjCache = cache[ p_classId ];
@@ -94,18 +101,18 @@ namespace ROOT_SPACE
                 std::list< baseObj* >::iterator tObjIterator = tObjCache->front();
                 tObjCache->pop_front();
                 mObjCacheList.erase( tObjIterator );
-                *tObjIterator->mFrequency = *tObjIterator->mFrequency < 0 ? 1 : *tObjIterator->mFrequency + 1;
+                (*tObjIterator)->setFrequency( (*tObjIterator)->frequency() < 0 ? 1 : (*tObjIterator)->frequency() + 1 );
                 return *tObjIterator;
             }
             return nullptr;
         }
 
-        void destory(void)
+        int destory(void)
         {
             //清空三级缓存
-            for( auto cache & : mCaches )
+            for( auto & cache : mCaches )
             {
-                for( auto cacheByClass & : cache )
+                for( auto & cacheByClass : cache )
                 {
                     delete cacheByClass.second;
                 }
@@ -117,6 +124,7 @@ namespace ROOT_SPACE
             {
                 delete obj;
             }
+			return baseObj::destory ();
         }
     private:
 
@@ -132,6 +140,8 @@ namespace ROOT_SPACE
         std::map< std::string, std::list< std::list< baseObj* >::iterator > * > mCaches[3];
         std::list< baseObj* > mObjCacheList;
     };
+
+	std::map<unsigned int, gc *> gc::sInstances;
 }
 
 #endif //__GC_H__

@@ -4,36 +4,59 @@
 
 #include "baseObj.hpp"
 #include "gc.hpp"
+#include "gcWorker.hpp"
 #include "../../Tools/include/log.hpp"
+#include <cassert>
 
 namespace ROOT_SPACE
 {
+
+    #define CREATEFUNC(class)													\
+		public:																	\
+            static class & Create(void)                                         \
+                {                                                               \
+                    class * result = ( class * )ws::gc::instance ().getObj ( typeid( class ).name () );\
+                    if( !result )                                               \
+                    {                                                           \
+                        result = new class();                                   \
+                    }                                                           \
+                                                                                \
+                    if( result->init() )                                        \
+                    {                                                           \
+                        delete result;                                          \
+                        result = nullptr;                                       \
+                    }                                                           \
+                                                                                \
+                    assert( result );                                           \
+                                                                                \
+                    ws::gcWorker::autoRelease ( *(baseObj *)result );           \
+                    return * result;                                            \
+                }                                                               \
+
     class object : public baseObj
     {
+        CREATEFUNC( object )
     public:
+
         //引用加一
         virtual void retain( void ) override
         {
-            mQuoteMutex.lock();
-            mQuote++;
-            mQuoteMutex.unlock();
+            baseObj::retain();
         }
 
         //引用减一
         virtual void release( void ) override
         {
-            mQuoteMutex.lock();
-            mQuote--;
-            mQuoteMutex.unlock();
+            baseObj::release();
 
-            if( mQuote > 0 ) return;
+            if( baseObj::quote() > 0 ) return;
 
-            if( mQuote < 0 )
+            if( quote() < 0 )
             {
                 log.warning( "release does not match retain" );
             }
 
-            if( mQuote <= 0 && this->destory() )
+            if( quote() <= 0 && this->destory() )
             {
                 gc::instance().cacheObj( *this );
                 return;
@@ -42,6 +65,7 @@ namespace ROOT_SPACE
             delete this;
         }
     protected:
+
         virtual int init( void ) override
         {
             return baseObj::init();
@@ -51,9 +75,17 @@ namespace ROOT_SPACE
         {
             return baseObj::destory();
         }
+
+		object ( void )
+		{
+
+		}
+
+		virtual ~object ( void )
+		{
+
+		}
     private:
-        static ws::log;
-        static std::mutex mQuoteMutex;
     };
 }
 

@@ -12,11 +12,42 @@ namespace ROOT_SPACE
 {
     class baseObj
     {
+		friend class gcWorker;
     public:
     
-        virtual void retain( void );
+        virtual void retain( void )
+        {
+            mQuoteMutex.lock();
+            mQuote++;
+            mQuoteMutex.unlock();
+        }
         
-        virtual void release( void );
+        virtual void release( void )
+        {
+            mQuoteMutex.lock();
+            mQuote--;
+            mQuoteMutex.unlock();
+        }
+
+        int frequency( void ) const
+        {
+            return mFrequency;
+        }
+
+		int frequencyMinusOne(void)
+		{
+			return --mFrequency;
+		}
+
+		void setFrequency ( const int p_frequency )
+		{
+			mFrequency = p_frequency;
+		}
+
+        int quote( void ) const
+        {
+            return mQuote;
+        }
 
     protected:
         baseObj( void )
@@ -39,12 +70,18 @@ namespace ROOT_SPACE
             return 0;
         }
 
+
+    private:
         //缓存频率 频率高的在一级缓存  频率低的被回收
         int mFrequency;
-    private:
+
         //对象引用数量
         int mQuote;
+
+        static std::mutex mQuoteMutex;
     };
+
+	std::mutex baseObj::mQuoteMutex;
 }
 
 #endif //__BASE_OBJ_H__

@@ -8,7 +8,7 @@
 
 namespace ROOT_SPACE
 {
-    class gcWorker: public baseObj
+    class gcWorker
     {
     public:
         gcWorker(void)
@@ -26,7 +26,7 @@ namespace ROOT_SPACE
             //将不用的对象放入缓存中
             for(auto item : mManageObjList)
             {
-                if( item->mQuote <= 0 && item->destory() )
+                if( item->quote() <= 0 && !item->destory() )
                 {
                     gc::instance().cacheObj( *item );
                     continue;
@@ -36,7 +36,7 @@ namespace ROOT_SPACE
 
             //删除当前栈管理对象
             mGcWorkers[ mThreadId ]->pop();
-            if( mGcWorkers[ mThreadId ].size() <= 0 )
+            if( mGcWorkers[ mThreadId ]->size() <= 0 )
             {
                 delete mGcWorkers[ mThreadId ];
                 mGcWorkers.erase( mThreadId );
@@ -46,14 +46,18 @@ namespace ROOT_SPACE
         //将对象加入自动回收系统
         static void autoRelease( baseObj & p_bobj )
         {
-            mGcWorkers[ws::PthreadSelf()].top().push_back( &p_bobj );
+            mGcWorkers[ws::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
         }
 
     private:
+
+		static std::map< unsigned int, std::stack< gcWorker * > * > mGcWorkers;
+
         unsigned int mThreadId;
-        static std::map< unsigned int, std::stack< gcWorker * > * > mGcWorkers;
         std::list< baseObj * > mManageObjList;
     };
+
+	std::map< unsigned int, std::stack< gcWorker * > * > gcWorker::mGcWorkers;
 }
 
 #endif //__GC_WORKER_HPP__

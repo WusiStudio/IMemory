@@ -1,8 +1,8 @@
-cmake_minimum_required(3.9.2)
+cmake_minimum_required(VERSION 3.9.0)
 
-project(IntelligentMemoryTest)
+project(IMemoryTest)
 
-add_executable(im_test IntelligentMemoryTest.cpp)
+add_executable(im_test IMemoryTest.cpp)
 
 #输出路径
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/bin)

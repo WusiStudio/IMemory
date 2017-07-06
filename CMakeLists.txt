@@ -1,5 +1,5 @@
-cmake_minimum_required(3.9.2)
+cmake_minimum_required(VERSION 3.9.0)
 
-project(IntelligentMemory)
+project(IMemory)
 
 add_subdirectory(tests)
