@@ -33,6 +33,10 @@ namespace ROOT_SPACE
                     return * result;                                            \
                 }                                                               \
 
+//当前作用域中启
+#define IMSTACK		ws::gcWorker __FILE_##__LINE__;
+#define IMGCMake	ws::gc::instance().makeCache();
+
     class object : public baseObj
     {
         CREATEFUNC( object )
@@ -85,6 +89,7 @@ namespace ROOT_SPACE
 		{
 
 		}
+
     private:
     };
 }

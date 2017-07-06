@@ -4,6 +4,7 @@
 
 #include "baseObj.hpp"
 #include "object.hpp"
+#include "../../Tools/include/log.hpp"
 #include "../../Tools/include/threadExt.hpp"
 
 #include <map>
@@ -56,13 +57,15 @@ namespace ROOT_SPACE
                 {
                     tCacheList = mCaches + 1;
                 }
-                else if( tCurrObjIndex <= 20000 )
+                else if( tCurrObjIndex <= 50000 )
                 {
                     tCacheList = mCaches + 2;
                 }
 
+				tCurrObjIndex++;
+
                 //删除超出的缓存对象
-                if( (*item)->frequencyMinusOne() <= -300 || !tCacheList )
+                if((*item)->frequencyMinusOne () <= -300 || tCacheList == nullptr )
                 {
                     delete *item;
                     mObjCacheList.erase( item-- );
@@ -93,6 +96,7 @@ namespace ROOT_SPACE
 
         baseObj * getObj( const std::string & p_classId )
         {
+			baseObj * result = nullptr;
             for( auto & cache : mCaches )
             {
                 if( cache.find( p_classId ) ==  cache.end() ) continue;
@@ -100,11 +104,12 @@ namespace ROOT_SPACE
                 if( tObjCache->empty() ) continue;
                 std::list< baseObj* >::iterator tObjIterator = tObjCache->front();
                 tObjCache->pop_front();
+				result = *tObjIterator;
                 mObjCacheList.erase( tObjIterator );
-                (*tObjIterator)->setFrequency( (*tObjIterator)->frequency() < 0 ? 1 : (*tObjIterator)->frequency() + 1 );
-                return *tObjIterator;
+				result->setFrequency( result->frequency() < 0 ? 1 : result->frequency() + 1 );
+				break;
             }
-            return nullptr;
+            return result;
         }
 
         int destory(void)

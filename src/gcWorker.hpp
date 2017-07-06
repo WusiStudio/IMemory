@@ -4,6 +4,7 @@
 
 #include "baseObj.hpp"
 #include "gc.hpp"
+#include "../../Tools/include/log.hpp"
 #include "../../Tools/include/threadExt.hpp"
 
 namespace ROOT_SPACE
@@ -46,6 +47,11 @@ namespace ROOT_SPACE
         //将对象加入自动回收系统
         static void autoRelease( baseObj & p_bobj )
         {
+			if ( !mGcWorkers.size () || mGcWorkers.find( ws::PthreadSelf () ) == mGcWorkers.end() || !mGcWorkers[ws::PthreadSelf ()]->size())
+			{
+				ws::log.warning ( "the current thread has no gcWorker!" );
+				return;
+			}
             mGcWorkers[ws::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
         }
 
