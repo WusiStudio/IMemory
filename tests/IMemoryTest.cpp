@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
 			tObjList.push_back ( &ttObj );
 		}
 		end = clock ();
-		ws::log.info ( "pass1 create 100000 object time: {0, F}", end - start );
+		ws::log.info ( "pass1 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
 	}
 
 	IMGCMake
@@ -40,7 +40,7 @@ int main( int argc, char ** argv )
 		tObjList.push_back ( &ttObj );
 	}
 	end = clock ();
-	ws::log.info ( "pass2 create 100000 object time: {0, F}", end - start );
+	ws::log.info ( "pass2 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
 
 	ws::object & tObj3 = ws::object::Create ();
 	ws::log.info ( "tObj3.quote: {0}, tObj3.frequency: {1}", tObj3.quote (), tObj3.frequency () );
