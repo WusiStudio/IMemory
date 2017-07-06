@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __INTELLIGENT_MEMORY_H__
-#define __INTELLIGENT_MEMORY_H__
+#ifndef __IMEMORY_H__
+#define __IMEMORY_H__
 
 #include "../src/baseObj.hpp"
 #include "../src/object.hpp"
@@ -9,4 +9,4 @@
 
 
 
-#endif //__INTELLIGENT_MEMORY_H__
+#endif //__IMEMORY_H__
