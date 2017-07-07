@@ -17,16 +17,16 @@ namespace ROOT_SPACE
     
         virtual void retain( void )
         {
-            mQuoteMutex.lock();
+            QuoteMutex().lock();
             mQuote++;
-            mQuoteMutex.unlock();
+            QuoteMutex().unlock();
         }
         
         virtual void release( void )
         {
-            mQuoteMutex.lock();
+            QuoteMutex().lock();
             mQuote--;
-            mQuoteMutex.unlock();
+            QuoteMutex().unlock();
         }
 
         int frequency( void ) const
@@ -78,10 +78,13 @@ namespace ROOT_SPACE
         //对象引用数量
         int mQuote;
 
-        static std::mutex mQuoteMutex;
+        static std::mutex & QuoteMutex(void)
+        {
+            static std::mutex smQuoteMutex;
+            return smQuoteMutex;
+        }
+        
     };
-
-	std::mutex baseObj::mQuoteMutex;
 }
 
 #endif //__BASE_OBJ_H__

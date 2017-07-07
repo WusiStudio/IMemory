@@ -19,13 +19,13 @@ namespace ROOT_SPACE
 
         static gc & instance()
         {
-            unsigned int tThreadId = ws::PthreadSelf();
-            if( sInstances.find( tThreadId ) == sInstances.end() )
+            unsigned int tThreadId = ws::threadExt::PthreadSelf();
+            if( Instances().find( tThreadId ) == Instances().end() )
             {
-                sInstances[ tThreadId ] = new gc();
+                Instances()[ tThreadId ] = new gc();
             }
 
-            return * sInstances[ tThreadId ];
+            return * Instances()[ tThreadId ];
         }
 
         void makeCache(void)
@@ -139,14 +139,18 @@ namespace ROOT_SPACE
             return mObjCacheList.begin();
         }
 
-        static std::map<unsigned int, gc *> sInstances;
+        static std::map<unsigned int, gc *> & Instances(void)
+        {
+            static std::map<unsigned int, gc *> smInstances;
+            return smInstances;
+        }
+        
 
         //三级缓存
         std::map< std::string, std::list< std::list< baseObj* >::iterator > * > mCaches[3];
         std::list< baseObj* > mObjCacheList;
     };
 
-	std::map<unsigned int, gc *> gc::sInstances;
 }
 
 #endif //__GC_H__

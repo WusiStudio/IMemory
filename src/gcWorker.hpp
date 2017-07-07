@@ -14,18 +14,18 @@ namespace ROOT_SPACE
     public:
         gcWorker(void)
         {
-            mThreadId = ws::PthreadSelf();
-            if( mGcWorkers.find( mThreadId ) == mGcWorkers.end() )
+            mThreadId = ws::threadExt::PthreadSelf();
+            if( GcWorkers().find( mThreadId ) == GcWorkers().end() )
             {
-                mGcWorkers[ mThreadId ] = new std::stack< gcWorker * >();
+                GcWorkers()[ mThreadId ] = new std::stack< gcWorker * >();
             }
-            mGcWorkers[ mThreadId ]->push( this );
+            GcWorkers()[ mThreadId ]->push( this );
         }
 
         ~gcWorker(void)
         {
             //将不用的对象放入缓存中
-            for(auto item : mManageObjList)
+            for(baseObj * item : mManageObjList)
             {
                 if( item->quote() <= 0 && !item->destory() )
                 {
@@ -36,34 +36,36 @@ namespace ROOT_SPACE
             }
 
             //删除当前栈管理对象
-            mGcWorkers[ mThreadId ]->pop();
-            if( mGcWorkers[ mThreadId ]->size() <= 0 )
+            GcWorkers()[ mThreadId ]->pop();
+            if( GcWorkers()[ mThreadId ]->size() <= 0 )
             {
-                delete mGcWorkers[ mThreadId ];
-                mGcWorkers.erase( mThreadId );
+                delete GcWorkers()[ mThreadId ];
+                GcWorkers().erase( mThreadId );
             }
         }
 
         //将对象加入自动回收系统
         static void autoRelease( baseObj & p_bobj )
         {
-			if ( !mGcWorkers.size () || mGcWorkers.find( ws::PthreadSelf () ) == mGcWorkers.end() || !mGcWorkers[ws::PthreadSelf ()]->size())
+			if ( !GcWorkers().size () || GcWorkers().find( ws::threadExt::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ws::threadExt::PthreadSelf ()]->size())
 			{
-				ws::log.warning ( "the current thread has no gcWorker!" );
+				LOG.warning ( "the current thread has no gcWorker!" );
 				return;
 			}
-            mGcWorkers[ws::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
+            GcWorkers()[ws::threadExt::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
         }
 
     private:
 
-		static std::map< unsigned int, std::stack< gcWorker * > * > mGcWorkers;
-
+        static std::map< unsigned int, std::stack< gcWorker * > * > & GcWorkers(void)
+        {
+            static std::map< unsigned int, std::stack< gcWorker * > * > smGcWorkers;
+            return smGcWorkers;
+        }
+		
         unsigned int mThreadId;
         std::list< baseObj * > mManageObjList;
     };
-
-	std::map< unsigned int, std::stack< gcWorker * > * > gcWorker::mGcWorkers;
 }
 
 #endif //__GC_WORKER_HPP__

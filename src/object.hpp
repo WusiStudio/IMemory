@@ -12,7 +12,6 @@ namespace ROOT_SPACE
 {
 
     #define CREATEFUNC(class)													\
-		public:																	\
             static class & Create(void)                                         \
                 {                                                               \
                     class * result = ( class * )ws::gc::instance ().getObj ( typeid( class ).name () );\
@@ -38,9 +37,10 @@ namespace ROOT_SPACE
 #define IMGCMake	ws::gc::instance().makeCache();
 
     class object : public baseObj
-    {
-        CREATEFUNC( object )
+    { 
     public:
+
+        CREATEFUNC( object );
 
         //引用加一
         virtual void retain( void ) override
@@ -57,7 +57,7 @@ namespace ROOT_SPACE
 
             if( quote() < 0 )
             {
-                log.warning( "release does not match retain" );
+                LOG.warning( "release does not match retain" );
             }
 
             if( quote() <= 0 && this->destory() )
