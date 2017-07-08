@@ -13,11 +13,11 @@ int main( int argc, char ** argv )
 	{ IMSTACK
 
 		ws::object & tObj = ws::object::Create ();
-		ws::log.info ( "tObj.quote: {0}, tObj.frequency: {1}", tObj.quote (), tObj.frequency () );
+		LOG.info ( "tObj.quote: {0}, tObj.frequency: {1}", tObj.quote (), tObj.frequency () );
 
 		ws::object & tObj2 = ws::object::Create ();
 		tObj2.retain ();
-		ws::log.info ( "tObj2.quote: {0}, tObj2.frequency: {1}", tObj2.quote (), tObj2.frequency () );
+		LOG.info ( "tObj2.quote: {0}, tObj2.frequency: {1}", tObj2.quote (), tObj2.frequency () );
 
 		std::vector< ws::object * > tObjList;
 		start = clock ();
@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
 			tObjList.push_back ( &ttObj );
 		}
 		end = clock ();
-		ws::log.info ( "pass1 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
+		LOG.info ( "pass1 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
 	}
 
 	IMGCMake
@@ -40,12 +40,12 @@ int main( int argc, char ** argv )
 		tObjList.push_back ( &ttObj );
 	}
 	end = clock ();
-	ws::log.info ( "pass2 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
+	LOG.info ( "pass2 create 100000 object time: {0, F4}", (end - start) / CLOCKS_PER_SEC );
 
 	ws::object & tObj3 = ws::object::Create ();
-	ws::log.info ( "tObj3.quote: {0}, tObj3.frequency: {1}", tObj3.quote (), tObj3.frequency () );
+	LOG.info ( "tObj3.quote: {0}, tObj3.frequency: {1}", tObj3.quote (), tObj3.frequency () );
 	ws::object & tObj4 = ws::object::Create ();
-	ws::log.info ( "tObj4.quote: {0}, tObj4.frequency: {1}", tObj4.quote (), tObj4.frequency () );
+	LOG.info ( "tObj4.quote: {0}, tObj4.frequency: {1}", tObj4.quote (), tObj4.frequency () );
 
 	IMGCMake
 
