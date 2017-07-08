@@ -2,10 +2,10 @@
 #ifndef __IMEMORY_H__
 #define __IMEMORY_H__
 
-#include "../src/baseObj.hpp"
-#include "../src/object.hpp"
-#include "../src/gc.hpp"
-#include "../src/gcWorker.hpp"
+#include "baseObj.hpp"
+#include "object.hpp"
+#include "gc.hpp"
+#include "gcWorker.hpp"
 
 
 
