@@ -5,6 +5,7 @@
 #include "baseObj.hpp"
 #include "gc.hpp"
 #include "gcWorker.hpp"
+#include "event.hpp"
 #include "../../Tools/include/log.hpp"
 #include <cassert>
 
@@ -35,6 +36,50 @@ namespace ROOT_SPACE
 //当前作用域中启
 #define IMSTACK		ws::gcWorker __FILE_##__LINE__;
 #define IMGCMake	ws::gc::instance().makeCache();
+
+#define ATTIRBUTE( type, name )                     \
+    ATTIRBUTE_D( type, name )                       
+
+#define ATTIRBUTE_W( type, name )                   \
+    DEFINE_ATTIRBUTE( type, name )                  \
+    DEFINE_ATTIRBUTE_W( type, name )                
+
+#define ATTIRBUTE_R( type, name )                   \
+    DEFINE_ATTIRBUTE( type, name );                 \
+    DEFINE_ATTIRBUTE_R( type, name );               
+
+#define ATTIRBUTE_WR( type, name )                  \
+    DEFINE_ATTIRBUTE( type, name );                 \
+    DEFINE_ATTIRBUTE_R( type, name );               \
+    DEFINE_ATTIRBUTE_W( type, name )                
+
+#define ATTIRBUTE_RW( type, name )                  \
+    ATTIRBUTE_WR( type, name );                 
+
+#define DEFINE_ATTIRBUTE( type, name )              \
+    private:                                        \
+        type    m##name;                            
+#define DEFINE_ATTIRBUTE_R( type, name )            \
+    public:                                         \
+        type name( void )                           \
+        {                                           \
+            return m##name;                         \
+        }
+#define DEFINE_ATTIRBUTE_W( type, name )            \
+    public:                                         \
+        void name ( const type & p_##name )         \
+        {                                           \
+            m##name = p_##name;                     \
+        }                                           
+
+#define EVENT( func, name )                         \
+    private:                                        \
+        event< func > m##name;                      \
+    public:                                         \
+        void on##name( const func & p_func )        \
+        {                                           \
+            m##name.bind( p_func );                 \
+        }                                           
 
     class object : public baseObj
     { 
