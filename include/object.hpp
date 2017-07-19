@@ -61,13 +61,13 @@ namespace ROOT_SPACE
         type    m##name;                            
 #define DEFINE_ATTIRBUTE_R( type, name )            \
     public:                                         \
-        type name( void )                           \
+        type get##name( void )                      \
         {                                           \
             return m##name;                         \
         }
 #define DEFINE_ATTIRBUTE_W( type, name )            \
     public:                                         \
-        void name ( const type & p_##name )         \
+        void set##name ( const type & p_##name )    \
         {                                           \
             m##name = p_##name;                     \
         }                                           
